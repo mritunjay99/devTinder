@@ -1,15 +1,14 @@
 const express = require("express");
-const { userAuth, adminAuth } = require("./middleware");
+const { connectDb } = require("./config/database");
 const app = express();
 
-app.get("/users", (req, res) => {
-  try {
-    throw new Error("Not valid!!");
-  } catch (err) {
-    res.status(401).send("Not valid!!");
-  }
-});
-
-app.listen(3000, () => {
-  console.log("server is running on port 3000");
-});
+connectDb()
+  .then(() => {
+    console.log("Connected to database");
+    app.listen(3000, () => {
+      console.log("server is running on port 3000");
+    });
+  })
+  .catch((err) => {
+    console.log("Error connecting to database"+err);
+  });
