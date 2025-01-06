@@ -1,21 +1,21 @@
 const express = require("express");
-require("./models/user")
+require("./models/user");
 const { connectDb } = require("./config/database");
 const User = require("./models/user");
 const app = express();
 
-app.post("/user/save",async(req,res)=>{   //saving data to mongodb
- const user=new User({
-  firstName:"Mritunjay",
-  lastName:"Yadav",
-  emailId:"binshuyadav123@gmail.com",
-  age:24,
-  gender:"Male",
- })
+app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
 
- await user.save();
- res.send("User saved successfully");
-})
+app.post("/signup", async (req, res) => {
+  //saving data to mongodb
+  const user = new User(req.body);
+  try {
+    await user.save();
+    res.send("User saved successfully");
+  } catch (err) {
+    res.status(401).send("Could not save user details!");
+  }
+});
 
 connectDb()
   .then(() => {
@@ -25,5 +25,5 @@ connectDb()
     });
   })
   .catch((err) => {
-    console.log("Error connecting to database"+err);
+    console.log("Error connecting to database" + err);
   });
