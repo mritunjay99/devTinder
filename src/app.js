@@ -1,6 +1,21 @@
 const express = require("express");
+require("./models/user")
 const { connectDb } = require("./config/database");
+const User = require("./models/user");
 const app = express();
+
+app.post("/user/save",async(req,res)=>{   //saving data to mongodb
+ const user=new User({
+  firstName:"Mritunjay",
+  lastName:"Yadav",
+  emailId:"binshuyadav123@gmail.com",
+  age:24,
+  gender:"Male",
+ })
+
+ await user.save();
+ res.send("User saved successfully");
+})
 
 connectDb()
   .then(() => {
