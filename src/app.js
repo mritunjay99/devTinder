@@ -41,6 +41,28 @@ app.post("/signup", async (req, res) => {
     res.status(401).send("Could not save user details!");
   }
 });
+//delete api
+app.delete("/user", async (req, res) => {
+  const userId = req.body.Id;
+  try {
+    await User.findByIdAndDelete(userId);
+    res.send("User deleted successfully");
+  } catch (err) {
+    res.status(400).send("Something went wrong");
+  }
+});
+
+//update user api
+app.patch("/user",async(req,res)=>{
+  const userId=req.body.Id;
+  const data=req.body;
+  try{
+    await User.findByIdAndUpdate(userId,data);
+    res.send("Updated user successfully!!");
+  }catch(err){
+    res.status(400).send("Something went wrong");
+  }
+})
 
 connectDb()
   .then(() => {
