@@ -38,7 +38,7 @@ app.post("/signup", async (req, res) => {
     await user.save();
     res.send("User saved successfully");
   } catch (err) {
-    res.status(401).send("Could not save user details!");
+    res.status(401).send("Could not save user details!" + err.message);
   }
 });
 //delete api
@@ -48,21 +48,21 @@ app.delete("/user", async (req, res) => {
     await User.findByIdAndDelete(userId);
     res.send("User deleted successfully");
   } catch (err) {
-    res.status(400).send("Something went wrong");
+    res.status(400).send("Something went wrong" + err.message);
   }
 });
 
 //update user api
-app.patch("/user",async(req,res)=>{
-  const userId=req.body.Id;
-  const data=req.body;
-  try{
-    await User.findByIdAndUpdate(userId,data);
+app.patch("/user", async (req, res) => {
+  const userId = req.body.Id;
+  const data = req.body;
+  try {
+    await User.findByIdAndUpdate(userId, data, { runValidators: true });
     res.send("Updated user successfully!!");
-  }catch(err){
-    res.status(400).send("Something went wrong");
+  } catch (err) {
+    res.status(400).send("Update failed" + err.message);
   }
-})
+});
 
 connectDb()
   .then(() => {
