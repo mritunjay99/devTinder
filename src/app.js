@@ -57,10 +57,24 @@ app.patch("/user", async (req, res) => {
   const userId = req.body.Id;
   const data = req.body;
   try {
+    const ALLOWED_UPDATES = [
+      "lastName",
+      "age",
+      "about",
+      "skills",
+      "photoURL",
+      "password",
+    ];
+    const isallowedUpdate = Object.keys(data).every((k) => {
+      return ALLOWED_UPDATES.includes(k);
+    });
+    if (!isallowedUpdate) {
+      throw new Error("Cannot update email!!");
+    }
     await User.findByIdAndUpdate(userId, data, { runValidators: true });
     res.send("Updated user successfully!!");
   } catch (err) {
-    res.status(400).send("Update failed" + err.message);
+    res.status(400).send("Update failed " + err.message);
   }
 });
 
