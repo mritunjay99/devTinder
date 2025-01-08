@@ -1,7 +1,8 @@
 const express = require("express");
-require("./models/user");
 const { connectDb } = require("./config/database");
 const User = require("./models/user");
+const { validateSignUpData } = require("./utils/validator");
+const bcrypt = require("bcrypt");
 const app = express();
 
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
@@ -31,14 +32,41 @@ app.get("/feed", async (req, res) => {
   }
 });
 
+//login api
+app.post("/login", async (req, res) => {
+  const { emailId, password } = req.body;
+  try {
+    const user = await User.findOne({ emailId: emailId });
+    if (!user) {
+      throw new Error("Invalid credentials!!!");
+    }
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (isValidPassword) {
+      res.send("Login successful!!!");
+    } else {
+      throw new Error("Invalid credentials!!!");
+    }
+  } catch (err) {
+    res.status(400).send("Error: " + err.message);
+  }
+});
+
 app.post("/signup", async (req, res) => {
   //saving data to mongodb
-  const user = new User(req.body);
+  const { firstName, lastName, emailId, password } = req.body;
+  const hashPassword = await bcrypt.hash(password, 10);
   try {
+    validateSignUpData(req);
+    const user = new User({
+      firstName,
+      lastName,
+      emailId,
+      password: hashPassword,
+    });
     await user.save();
     res.send("User saved successfully");
   } catch (err) {
-    res.status(401).send("Could not save user details!" + err.message);
+    res.status(401).send("Error: " + err.message);
   }
 });
 //delete api
