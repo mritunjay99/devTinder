@@ -4,10 +4,11 @@ const User = require("./models/user");
 const { validateSignUpData } = require("./utils/validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const app = express();
 
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
-app.use(cookieParser())
+app.use(cookieParser());
 
 //get user by email id
 app.get("/user", async (req, res) => {
@@ -42,9 +43,11 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials!!!");
     }
+    const token = await jwt.sign({ id: user._id }, "devTinder@7896");
+
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (isValidPassword) {
-      res.cookie("token", "dgcbydbfmsdfchdckjdcbasjhdcvdnc");
+      res.cookie("token", token);
       res.send("Login successful!!!");
     } else {
       throw new Error("Invalid credentials!!!");
@@ -54,9 +57,19 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", (req, res) => {
-  console.log(req.cookies);
-  res.send("Welcome to profile page");
+app.get("/profile", async (req, res) => {
+  try {
+    const { token } = req.cookies;
+    if (!token) {
+      res.status(401).send("Unauthorized");
+    } else {
+      const decodedValue = await jwt.verify(token, "devTinder@7896");
+      const user = await User.findOne({ _id: decodedValue.id });
+      res.send(user);
+    }
+  } catch (err) {
+    res.status(400).send("Error: " + err.message);
+  }
 });
 
 app.post("/signup", async (req, res) => {
