@@ -6,10 +6,17 @@ const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const { userAuth } = require("./middleware");
+const authRouter = require("./routes/auth");
+const profileRouter = require("./routes/profile");
+const requestRouter = require("./routes/request");
 const app = express();
 
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
 app.use(cookieParser());
+
+app.use("/", authRouter);
+app.use("/", profileRouter);
+app.use("/", requestRouter);
 
 //get user by email id
 app.get("/user", async (req, res) => {
@@ -36,66 +43,6 @@ app.get("/feed", async (req, res) => {
   }
 });
 
-//login api
-app.post("/login", async (req, res) => {
-  const { emailId, password } = req.body;
-  try {
-    const user = await User.findOne({ emailId: emailId });
-    if (!user) {
-      throw new Error("Invalid credentials!!!");
-    }
-
-    const isValidPassword = await user.validatePassword(password);
-    if (isValidPassword) {
-      const token = await user.getJWT();
-      res.cookie("token", token, { expires: new Date(Date.now() + 604800000) }); //setting expiration for cookie
-      res.send("Login successful!!!");
-    } else {
-      throw new Error("Invalid credentials!!!");
-    }
-  } catch (err) {
-    res.status(400).send("Error: " + err.message);
-  }
-});
-
-//view profile
-app.get("/profile", userAuth, async (req, res) => {
-  try {
-    const user = req.user;
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("Error: " + err.message);
-  }
-});
-
-// send connection request
-app.post("/sendConnectionRequest", userAuth, (req, res) => {
-  try {
-    const user = req.user;
-    res.send(req.user.firstName + " sent the connection request!");
-  } catch (err) {
-    res.status(400).send("Error: " + err.message);
-  }
-});
-
-app.post("/signup", async (req, res) => {
-  //saving data to mongodb
-  const { firstName, lastName, emailId, password } = req.body;
-  const hashPassword = await bcrypt.hash(password, 10);
-  try {
-    validateSignUpData(req);
-    const user = new User({
-      firstName,
-      lastName,
-      emailId,
-      password: hashPassword,
-    });
-    await user.save();
-    res.send("User saved successfully");
-  } catch (err) {
-    res.status(401).send("Error: " + err.message);
-  }
-});
 //delete api
 app.delete("/user", async (req, res) => {
   const userId = req.body.Id;
