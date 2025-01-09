@@ -5,6 +5,7 @@ const { validateSignUpData } = require("./utils/validator");
 const bcrypt = require("bcrypt");
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
+const { userAuth } = require("./middleware");
 const app = express();
 
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
@@ -43,11 +44,13 @@ app.post("/login", async (req, res) => {
     if (!user) {
       throw new Error("Invalid credentials!!!");
     }
-    const token = await jwt.sign({ id: user._id }, "devTinder@7896");
+    const token = await jwt.sign({ id: user._id }, "devTinder@7896", {
+      expiresIn: "7d",
+    });
 
     const isValidPassword = await bcrypt.compare(password, user.password);
     if (isValidPassword) {
-      res.cookie("token", token);
+      res.cookie("token", token, { expires: new Date(Date.now() + 604800000) }); //setting expiration for cookie
       res.send("Login successful!!!");
     } else {
       throw new Error("Invalid credentials!!!");
@@ -57,16 +60,21 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.get("/profile", async (req, res) => {
+//view profile
+app.get("/profile", userAuth, async (req, res) => {
   try {
-    const { token } = req.cookies;
-    if (!token) {
-      res.status(401).send("Unauthorized");
-    } else {
-      const decodedValue = await jwt.verify(token, "devTinder@7896");
-      const user = await User.findOne({ _id: decodedValue.id });
-      res.send(user);
-    }
+    const user = req.user;
+    res.send(user);
+  } catch (err) {
+    res.status(400).send("Error: " + err.message);
+  }
+});
+
+// send connection request
+app.post("/sendConnectionRequest", userAuth, (req, res) => {
+  try {
+    const user = req.user;
+    res.send(req.user.firstName + " sent the connection request!");
   } catch (err) {
     res.status(400).send("Error: " + err.message);
   }
