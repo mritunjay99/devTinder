@@ -28,7 +28,8 @@ const connectionRequestSchema = new Schema(
 connectionRequestSchema.index({ fromUserId: 1, toUserId: 1 });
 
 connectionRequestSchema.pre("save", function (next) {
-  console.log("pre hook called!");
+  //this acts as a middleware , it will be called before any document is getting saved in "ConnectionRequest" collection
+  // console.log("pre hook called!");
   //   console.log(this.fromUserId, this.toUserId);
   const connectionRequest = this;
   if (connectionRequest.fromUserId.equals(connectionRequest.toUserId)) {

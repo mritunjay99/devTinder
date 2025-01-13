@@ -41,11 +41,15 @@ requestRouter.post(
         toUserId,
         status,
       });
-      console.log("before saving");
+      // console.log("before saving");
       const data = await connectionRequest.save();
-      console.log("after saving");
+      // console.log("after saving");
+      const message =
+        status == "interested"
+          ? `${req.user.firstName} is interested in ${toUser.firstName}`
+          : `${req.user.firstName} ignored ${toUser.firstName}`;
       res.json({
-        message: "Connection request sent successfully",
+        message,
         data,
       });
     } catch (err) {
