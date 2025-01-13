@@ -58,4 +58,43 @@ requestRouter.post(
   }
 );
 
+//accept or reject a connection request
+requestRouter.post(
+  "/request/review/:status/:requestId",
+  userAuth,
+  async (req, res) => {
+    try {
+      const loggedInUser = req.user;
+      const status = req.params.status;
+      const requestId = req.params.requestId;
+
+      const allowedStatus = ["accepted", "rejected"];
+      if (!allowedStatus.includes(status)) {
+        throw new Error("Invalid status");
+      }
+
+      // checking whether the logged in user is the same to whom the request is sent.
+      const connectionRequest = await ConnectionRequestModel.findOne({
+        _id: requestId,
+        toUserId: loggedInUser._id,
+        status: "interested",
+      });
+
+      if (!connectionRequest) {
+        throw new Error("Request not found");
+      }
+
+      connectionRequest.status = status;
+      const data = await connectionRequest.save();
+
+      res.json({
+        message: "Request " + status,
+        data,
+      });
+    } catch (err) {
+      res.status(400).send("error: " + err.message);
+    }
+  }
+);
+
 module.exports = requestRouter;
