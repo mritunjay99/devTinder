@@ -56,6 +56,10 @@ userRouter.get("/user/requests", userAuth, async (req, res) => {
 userRouter.get("/feed", userAuth, async (req, res) => {
   try {
     const loggedInUser = req.user;
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 10;
+    limit = limit > 50 ? 50 : limit;
+
     //we should only show those user with whom the connection request does not exist
     //if the connection request is accepted/rejected we should not show it
     //the user should not see himself in the feed api response
@@ -78,7 +82,10 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     //getting all the users who doesn't exist in "hideUsers" set
     const users = await User.find({
       _id: { $nin: Array.from(hideUsers) },
-    }).select(USER_SAFEDATA);
+    })
+      .select(USER_SAFEDATA)
+      .skip((page - 1) * limit)
+      .limit(limit);
 
     res.json({
       data: users,
