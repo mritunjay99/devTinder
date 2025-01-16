@@ -7,7 +7,12 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const app = express();
+const cors = require("cors");
 
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
 app.use(cookieParser());
 
@@ -17,40 +22,40 @@ app.use("/", requestRouter);
 app.use("/", userRouter);
 
 //get user by email id
-app.get("/user", async (req, res) => {
-  const userFirstName = req.body.firstName;
-  try {
-    const user = await User.findOne({ firstName: userFirstName }); //if condition is not passed it will return any arbitary documents
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-    }
-    res.send(user);
-  } catch (err) {
-    res.status(400).send("Something went wrong");
-  }
-});
+// app.get("/user", async (req, res) => {
+//   const userFirstName = req.body.firstName;
+//   try {
+//     const user = await User.findOne({ firstName: userFirstName }); //if condition is not passed it will return any arbitary documents
+//     if (!user) {
+//       res.status(404).json({ message: "User not found" });
+//     }
+//     res.send(user);
+//   } catch (err) {
+//     res.status(400).send("Something went wrong");
+//   }
+// });
 
 //feed api -get all the users
 
-app.get("/feed", async (req, res) => {
-  try {
-    const users = await User.find({});
-    res.send(users);
-  } catch (err) {
-    res.status(400).send("Something went wrong!");
-  }
-});
+// app.get("/feed", async (req, res) => {
+//   try {
+//     const users = await User.find({});
+//     res.send(users);
+//   } catch (err) {
+//     res.status(400).send("Something went wrong!");
+//   }
+// });
 
 //delete api
-app.delete("/user", async (req, res) => {
-  const userId = req.body.Id;
-  try {
-    await User.findByIdAndDelete(userId);
-    res.send("User deleted successfully");
-  } catch (err) {
-    res.status(400).send("Something went wrong" + err.message);
-  }
-});
+// app.delete("/user", async (req, res) => {
+//   const userId = req.body.Id;
+//   try {
+//     await User.findByIdAndDelete(userId);
+//     res.send("User deleted successfully");
+//   } catch (err) {
+//     res.status(400).send("Something went wrong" + err.message);
+//   }
+// });
 
 //update user api
 app.patch("/user", async (req, res) => {
