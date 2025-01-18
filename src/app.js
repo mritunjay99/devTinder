@@ -9,10 +9,20 @@ const userRouter = require("./routes/user");
 const app = express();
 const cors = require("cors");
 
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true
-}));
+var options = {
+  origin: "http://localhost:5173",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  credentials:true
+};
+app.use(cors(options));
+// app.use(
+//   cors({
+//     origin: "http://localhost:5173",
+//     credentials: true,
+//   })
+// );
 app.use(express.json()); //acts as a middleware for converting the incoming req' json object to js object
 app.use(cookieParser());
 

@@ -17,11 +17,11 @@ const validateEditProfileData = (data) => {
   const ALLOWED_UPDATES = [
     "firstName",
     "lastName",
-    "emailId",
     "photoURL",
     "about",
     "gender",
     "skills",
+    "age"
   ];
   const isValidEdit = Object.keys(data).every((key) => {
     return ALLOWED_UPDATES.includes(key);
