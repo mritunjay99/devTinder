@@ -37,7 +37,6 @@ const run = async (subject, body) => {
   );
 
   try {
-    // console.log(process.env.AWS_ACCESS_KEY)
     return await sesClient.send(sendEmailCommand);
   } catch (caught) {
     if (caught instanceof Error && caught.name === "MessageRejected") {
