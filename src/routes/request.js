@@ -3,6 +3,7 @@ const requestRouter = express.Router();
 const User = require("../models/user");
 const ConnectionRequestModel = require("../models/connectionRequest");
 const { userAuth } = require("../middleware");
+const sendEmail = require("../utils/sendEmail");
 
 // send connection request
 requestRouter.post(
@@ -44,6 +45,8 @@ requestRouter.post(
       // console.log("before saving");
       const data = await connectionRequest.save();
       // console.log("after saving");
+      const emailRes = await sendEmail.run(`Connection request from ${req.user.firstName}`,`${req.user.firstName} is interested in ${toUser.firstName}`);
+      console.log(emailRes);
       const message =
         status == "interested"
           ? `${req.user.firstName} is interested in ${toUser.firstName}`

@@ -1,4 +1,5 @@
 const express = require("express");
+require("dotenv").config();
 const { connectDb } = require("./config/database");
 const User = require("./models/user");
 const cookieParser = require("cookie-parser");
@@ -14,7 +15,7 @@ var options = {
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   preflightContinue: false,
   optionsSuccessStatus: 204,
-  credentials:true
+  credentials: true,
 };
 app.use(cors(options));
 // app.use(
