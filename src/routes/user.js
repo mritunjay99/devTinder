@@ -70,14 +70,13 @@ userRouter.get("/feed", userAuth, async (req, res) => {
     }).select("fromUserId toUserId");
     // .populate("fromUserId", "firstName")
     // .populate("toUserId", "firstName");
-    // console.log(connectionRequests);
 
     const hideUsers = new Set();
+    hideUsers.add(req.user._id);
     connectionRequests.forEach((req) => {
       hideUsers.add(req.fromUserId);
       hideUsers.add(req.toUserId);
     });
-    // console.log(hideUsers);
 
     //getting all the users who doesn't exist in "hideUsers" set
     const users = await User.find({
