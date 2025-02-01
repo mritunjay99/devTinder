@@ -10,6 +10,8 @@ const requestRouter = require("./routes/request");
 const userRouter = require("./routes/user");
 const app = express();
 const cors = require("cors");
+const http = require("http");
+const initializeSocket = require("./utils/socket");
 
 var options = {
   origin: "http://localhost:5173",
@@ -54,10 +56,13 @@ app.patch("/user", async (req, res) => {
   }
 });
 
+const server = http.createServer(app);
+initializeSocket(server);
+
 connectDb()
   .then(() => {
     console.log("Connected to database");
-    app.listen(3000, () => {
+    server.listen(3000, () => {
       console.log("server is running on port 3000");
     });
   })

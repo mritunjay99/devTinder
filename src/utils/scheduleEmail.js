@@ -3,9 +3,9 @@ const ConnectionRequestModel = require("../models/connectionRequest");
 const { subDays, startOfDay, endOfDay } = require("date-fns");
 const sendEmail = require("./sendEmail");
 
-cron.schedule("15 18 * * *", async () => {
+cron.schedule("24 18 * * *", async () => {
   try {
-    const yesterDay = subDays(new Date(), 0);
+    const yesterDay = subDays(new Date(), 1);
     const startofDay = startOfDay(yesterDay);
     const endofDay = endOfDay(yesterDay);
     const pendingConnectionRequests = await ConnectionRequestModel.find({
