@@ -12,6 +12,7 @@ const app = express();
 const cors = require("cors");
 const http = require("http");
 const initializeSocket = require("./utils/socket");
+const chatRouter = require("./routes/chat");
 
 var options = {
   origin: "http://localhost:5173",
@@ -29,6 +30,7 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", chatRouter);
 
 //update user api
 app.patch("/user", async (req, res) => {

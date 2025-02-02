@@ -1,4 +1,5 @@
 const socket = require("socket.io");
+const Chat = require("../models/chat");
 
 const initializeSocket = (server) => {
   const io = socket(server, {
@@ -15,12 +16,34 @@ const initializeSocket = (server) => {
     });
     socket.on(
       "sendMessage",
-      ({ firstName, userId, targetUserId, newMessage }) => {
-        const roomId = [userId, targetUserId].sort().join("_");
-        console.log(
-          firstName + " sent message:" + newMessage + " to room:" + roomId
-        );
-        io.to(roomId).emit("messageReceived", { firstName, newMessage });
+      async ({ firstName, lastName, userId, targetUserId, newMessage }) => {
+        // console.log(
+        //   firstName + " sent message:" + newMessage + " to room:" + roomId
+        // );
+        //save message to database
+        try {
+          const roomId = [userId, targetUserId].sort().join("_");
+          let chat = await Chat.findOne({
+            participants: { $all: [userId, targetUserId] },
+          });
+
+          if (!chat) {
+            chat = new Chat({
+              participants: [userId, targetUserId],
+              messages: [],
+            });
+          }
+
+          chat.messages.push({ senderId: userId, text: newMessage });
+          await chat.save();
+          io.to(roomId).emit("messageReceived", {
+            firstName,
+            lastName,
+            newMessage,
+          });
+        } catch (err) {
+          console.log(err);
+        }
       }
     );
     socket.on("disconnect", () => {});
